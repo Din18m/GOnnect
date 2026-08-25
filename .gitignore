@@ -1,0 +1,51 @@
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Build
+/bin/
+/build/
+/dist/
+
+# Dependencies
+/vendor/
+
+# Go workspace
+go.work
+go.work.sum
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+/logs/
+
+# Local data
+/data/
+.tmp/
+tmp/
+
+# Docker local overrides
+docker-compose.override.yml
+
+# Coverage
+coverage.out
+coverage.html
