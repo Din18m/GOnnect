@@ -1,0 +1,56 @@
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Build
+/bin/
+/build/
+/dist/
+/server
+
+# Dependencies
+/vendor/
+
+# Go workspace
+go.work
+go.work.sum
+
+# air (live reload) — build.tmp_dir is remapped to .air-bin/ in .air.toml
+# to avoid clashing with the repo-root tmp/ (planning docs)
+/.air-bin/
+build-errors.log
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+/logs/
+
+# Local data (postgres/redis/minio/meilisearch volumes, uploads, etc.)
+/data/
+.tmp/
+
+# Docker local overrides
+docker-compose.override.yml
+
+# Coverage
+coverage.out
+coverage.html
