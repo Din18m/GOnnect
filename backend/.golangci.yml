@@ -1,0 +1,69 @@
+version: "2"
+
+linters:
+  default: none
+  enable:
+    # базовые, из коробки go vet + компилятор
+    - govet
+    - staticcheck
+
+    # ошибки и надёжность
+    - errcheck # непроверенные ошибки (err не обработан)
+    - errorlint # правильная работа с обёрткой ошибок (errors.Is/As)
+    - bodyclose # незакрытые HTTP response body — актуально для сетевого кода
+    - sqlclosecheck # незакрытые sql.Rows/Stmt
+
+    # неиспользуемый / мёртвый код
+    - unused
+    - ineffassign # присвоения, которые никогда не читаются
+
+    # конкурентность — то, что мы разбирали для мессенджера
+    - copylocks # копирование мьютексов/локов по значению
+
+    # читаемость и простота
+    - gosimple
+    - unconvert # лишние преобразования типов
+    - unparam # неиспользуемые параметры функций
+
+    # стиль (без фанатизма)
+    - revive # современная замена golint, настраиваемая
+    - misspell # опечатки в комментариях/строках
+
+  settings:
+    errcheck:
+      # разрешаем не проверять ошибку у типовых "безопасных" вызовов
+      exclude-functions:
+        - (*os.File).Close
+        - (*net/http.Response.Body).Close
+
+    revive:
+      rules:
+        - name: exported
+          disabled: true # не требовать doc-комментарии на каждый экспортируемый идентификатор — слишком строго для старта
+        - name: unused-parameter
+          arguments:
+            - allow-regex: "^_"
+
+    staticcheck:
+      checks:
+        - all
+
+  exclusions:
+    rules:
+      # в тестах не так критично требовать проверку ошибок/параметров
+      - path: _test\.go
+        linters:
+          - errcheck
+          - unparam
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+run:
+  timeout: 5m
