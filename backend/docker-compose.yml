@@ -1,0 +1,91 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gonnect-api
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    environment:
+      - APP_HOST=${APP_HOST}
+      - APP_PORT=${APP_PORT}
+      - APP_MODE=${APP_MODE}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+      - LOGGER_LEVEL=${LOGGER_LEVEL}
+      - LOGGER_SKIP_FRAMES=${LOGGER_SKIP_FRAMES}
+      - LOGGER_FORMAT=${LOGGER_FORMAT}
+      - LOGGER_OUT=${LOGGER_OUT}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ACCESS_EXPIRY=${JWT_ACCESS_EXPIRY}
+      - JWT_REFRESH_EXPIRY=${JWT_REFRESH_EXPIRY}
+      - COOKIE_DOMAIN=${COOKIE_DOMAIN}
+      - COOKIE_SECURE=${COOKIE_SECURE}
+      - COOKIE_SAME_SITE=${COOKIE_SAME_SITE}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_DB=${REDIS_DB}
+    networks:
+      - gonnect
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:$${APP_PORT}/healthz || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:18.6-alpine3.24
+    container_name: gonnect-postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    networks:
+      - gonnect
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  redis:
+    image: redis:8-alpine
+    container_name: gonnect-redis
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    environment:
+      - REDISCLI_AUTH=${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    networks:
+      - gonnect
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep -q PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+networks:
+  gonnect:
+    name: gonnect
+
+volumes:
+  postgres_data:
+  redis_data:

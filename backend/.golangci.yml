@@ -59,6 +59,11 @@ formatters:
   enable:
     - gofmt
     - goimports
+  settings:
+    goimports:
+      # третья группа импортов: пакеты этого модуля
+      local-prefixes:
+        - github.com/Din18m/GOnnect
 
 issues:
   max-issues-per-linter: 0
